@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - FaceRec Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Premium Background Blobs -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Premium Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-face-smile-beam"></i>
+                </div>
+                FaceRec Pro
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="scan.html" class="nav-link">Live Analysis</a>
+                <a href="report.html" class="nav-link active">Report</a>
+                <a href="gallery.html" class="nav-link">Database</a>
+                <a href="#" onclick="logout()" class="nav-link" style="color: var(--danger);"><i
+                        class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="padding-top: 100px; padding-bottom: 40px;">
+        <div class="glass-card" style="padding: 2rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+                <h1 style="font-size: 2rem; display: flex; align-items: center; gap: 1rem;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i> Bunk / Missing
+                    Reports
+                </h1>
+                <button onclick="fetchLogs()" class="btn-secondary" style="font-size: 0.9rem;">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh
+                </button>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table id="logs-table" class="report-table"
+                    style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr>
+                            <th
+                                style="padding: 1rem; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                Student Name</th>
+                            <th
+                                style="padding: 1rem; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                Date</th>
+                            <th
+                                style="padding: 1rem; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                Time</th>
+                            <th
+                                style="padding: 1rem; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                Location</th>
+                            <th
+                                style="padding: 1rem; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                Status</th>
+                            <th
+                                style="padding: 1rem; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-body">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="no-logs" style="display: none; text-align: center; padding: 4rem 0; color: var(--text-muted);">
+                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"><i
+                        class="fa-solid fa-clipboard-check"></i></div>
+                <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">No missing reports found.</p>
+                <p style="font-size: 0.9rem;">Great! Everyone is attending class.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = "http://localhost:8000";
+
+        async function fetchLogs() {
+            try {
+                const response = await fetch(`${API_BASE}/api/logs/`);
+                const data = await response.json();
+                renderLogs(data.logs);
+            } catch (err) { }
+        }
+
+        function renderLogs(logs) {
+            const body = document.getElementById('logs-body');
+            const table = document.getElementById('logs-table');
+            const noLogs = document.getElementById('no-logs');
+
+            body.innerHTML = '';
+            if (logs.length === 0) {
+                table.style.display = 'none';
+                noLogs.style.display = 'block';
+            } else {
+                table.style.display = 'table';
+                noLogs.style.display = 'none';
+                logs.forEach(log => {
+                    const date = new Date(log.timestamp);
+                    const row = document.createElement('tr');
+                    row.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+                    row.innerHTML = `
+                        <td style="padding: 1rem; font-weight: 500;">${log.person__name || 'Unknown'}</td>
+                        <td style="padding: 1rem;">${date.toLocaleDateString()}</td>
+                        <td style="padding: 1rem; font-family: monospace;">${date.toLocaleTimeString()}</td>
+                        <td style="padding: 1rem;">${log.location}</td>
+                        <td style="padding: 1rem;">
+                            <span class="status-badge" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: var(--danger); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">
+                                <i class="fa-solid fa-circle-exclamation"></i> ${log.status}
+                            </span>
+                        </td>
+                        <td style="padding: 1rem;">
+                            <button onclick="deleteLog(${log.id})" style="color: var(--danger); background: none; border: none; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                    body.appendChild(row);
+                });
+            }
+        }
+
+        async function deleteLog(id) {
+            if (!confirm('Delete this entry?')) return;
+            try {
+                await fetch(`${API_BASE}/api/delete_log/${id}/`, { method: 'POST' });
+                fetchLogs();
+            } catch (err) { }
+        }
+
+        function logout() {
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+        }
+
+        fetchLogs();
+    </script>
+</body>
+
+</html>

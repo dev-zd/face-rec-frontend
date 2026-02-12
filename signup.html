@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup - FaceRec Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Premium Background Blobs -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Premium Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-face-smile-beam"></i>
+                </div>
+                FaceRec Pro
+            </a>
+            <div class="nav-links">
+                <a href="login.html" class="nav-link">Login</a>
+                <a href="signup.html" class="nav-link active">Signup</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="auth-container animate-fade-in">
+            <div class="glass-card auth-card">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <h1>Create Account</h1>
+                    <p>Register as an admin to access FaceRec Pro</p>
+                </div>
+
+                <form id="signup-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fa-solid fa-user"></i> Username
+                        </label>
+                        <input type="text" name="username" id="username" required placeholder="Choose a username"
+                            class="form-input" autocomplete="username">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="fa-solid fa-envelope"></i> Email
+                        </label>
+                        <input type="email" name="email" id="email" required placeholder="Enter your email"
+                            class="form-input" autocomplete="email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fa-solid fa-lock"></i> Password
+                        </label>
+                        <input type="password" name="password" id="password" required placeholder="Create a password"
+                            class="form-input" autocomplete="new-password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">
+                            <i class="fa-solid fa-lock"></i> Confirm Password
+                        </label>
+                        <input type="password" name="confirm_password" id="confirm_password" required
+                            placeholder="Confirm your password" class="form-input" autocomplete="new-password">
+                    </div>
+
+                    <button type="submit" id="signup-btn" class="btn-primary auth-btn">
+                        <span id="btn-text"><i class="fa-solid fa-user-plus"></i> Create Account</span>
+                        <span id="btn-loader" style="display: none;"><i class="fa-solid fa-circle-notch fa-spin"></i>
+                            Processing...</span>
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="login.html">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notifications -->
+    <div id="toast-container"
+        style="position: fixed; top: 90px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;">
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:8000";
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast animate-fade-in';
+            if (type === 'error') toast.style.borderLeft = '4px solid var(--danger)';
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('signup-btn');
+            const text = document.getElementById('btn-text');
+            const loader = document.getElementById('btn-loader');
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            if (data.password !== data.confirm_password) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            text.style.display = 'none';
+            loader.style.display = 'inline-block';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/signup/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Account created! Redirecting to login...');
+                    setTimeout(() => window.location.href = 'login.html', 1500);
+                } else {
+                    showToast(result.error || 'Signup failed', 'error');
+                    btn.disabled = false;
+                    text.style.display = 'inline-block';
+                    loader.style.display = 'none';
+                }
+            } catch (err) {
+                showToast('Server connection failed', 'error');
+                btn.disabled = false;
+                text.style.display = 'inline-block';
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

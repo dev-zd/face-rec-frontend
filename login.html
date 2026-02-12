@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FaceRec Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Premium Background Blobs -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Premium Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-face-smile-beam"></i>
+                </div>
+                FaceRec Pro
+            </a>
+            <div class="nav-links">
+                <a href="login.html" class="nav-link active">Login</a>
+                <a href="signup.html" class="nav-link">Signup</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="auth-container animate-fade-in">
+            <div class="glass-card auth-card">
+                <div class="auth-header">
+                    <div class="auth-logo">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h1>Admin Login</h1>
+                    <p>Enter your credentials to access the dashboard</p>
+                </div>
+
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fa-solid fa-user"></i> Username
+                        </label>
+                        <input type="text" name="username" id="username" required placeholder="Enter your username"
+                            class="form-input" autocomplete="username">
+                    </div>
+
+                    <div class="form-group">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label for="password" style="margin-bottom: 0;">
+                                <i class="fa-solid fa-lock"></i> Password
+                            </label>
+                        </div>
+                        <input type="password" name="password" id="password" required placeholder="Enter your password"
+                            class="form-input" autocomplete="current-password">
+                    </div>
+
+                    <button type="submit" id="login-btn" class="btn-primary auth-btn">
+                        <span id="btn-text"><i class="fa-solid fa-right-to-bracket"></i> Sign In</span>
+                        <span id="btn-loader" style="display: none;"><i class="fa-solid fa-circle-notch fa-spin"></i>
+                            Authenticating...</span>
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="signup.html">Create One</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notifications -->
+    <div id="toast-container"
+        style="position: fixed; top: 90px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;">
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:8000";
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast animate-fade-in';
+            if (type === 'error') toast.style.borderLeft = '4px solid var(--danger)';
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const text = document.getElementById('btn-text');
+            const loader = document.getElementById('btn-loader');
+
+            btn.disabled = true;
+            text.style.display = 'none';
+            loader.style.display = 'inline-block';
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast(`Welcome back, ${result.username}!`);
+                    localStorage.setItem('username', result.username);
+                    setTimeout(() => window.location.href = 'index.html', 1000);
+                } else {
+                    showToast(result.error || 'Invalid credentials', 'error');
+                    btn.disabled = false;
+                    text.style.display = 'inline-block';
+                    loader.style.display = 'none';
+                }
+            } catch (err) {
+                showToast('Unable to connect to server', 'error');
+                btn.disabled = false;
+                text.style.display = 'inline-block';
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

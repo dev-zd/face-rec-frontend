@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Analysis - FaceRec Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Premium Background Blobs -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Premium Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-face-smile-beam"></i>
+                </div>
+                FaceRec Pro
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="scan.html" class="nav-link active">Live Analysis</a>
+                <a href="report.html" class="nav-link">Report</a>
+                <a href="gallery.html" class="nav-link">Database</a>
+                <a href="#" onclick="logout()" class="nav-link" style="color: var(--danger);"><i
+                        class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container"
+        style="margin-top: 100px; display: grid; grid-template-columns: 320px 1fr; gap: 2rem; padding-bottom: 2rem;">
+        <!-- Left Sidebar: Live Log -->
+        <aside class="glass-card"
+            style="padding: 1.5rem; height: calc(100vh - 140px); display: flex; flex-direction: column;">
+            <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-clock-rotate-left"></i> Detection Log</h3>
+            <div id="detection-log"
+                style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+                <p style="text-align: center; color: var(--text-muted);">Waiting for feed...</p>
+            </div>
+        </aside>
+
+        <!-- Main Video Section -->
+        <div class="glass-card" style="padding: 0.5rem; position: relative; overflow: hidden;">
+            <div
+                style="width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center;">
+
+                <div id="offline-placeholder" style="text-align: center; color: var(--text-muted); opacity: 0.6;">
+                    <i class="fa-solid fa-video-slash"
+                        style="font-size: 4rem; margin-bottom: 1.5rem; display: block;"></i>
+                    <h2 style="font-weight: 400;">Detection Core Offline</h2>
+                    <p>Click "Start Detection" to initialize hardware</p>
+                </div>
+
+                <img id="video-feed" src="" style="width: 100%; height: 100%; object-fit: contain; display: none;">
+
+                <div id="hud-overlay" style="position: absolute; inset: 0; pointer-events: none; display: none;">
+                    <div class="hud-corner hud-tl"></div>
+                    <div class="hud-corner hud-tr"></div>
+                    <div class="hud-corner hud-bl"></div>
+                    <div class="hud-corner hud-br"></div>
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+
+            <div style="padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div id="status-indicator">
+                    <i class="fa-solid fa-server"></i> Status: <strong
+                        style="color: var(--status-standby);">STANDBY</strong>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button id="toggle-camera" onclick="toggleCamera()" class="btn-primary"
+                        style="background: var(--success);"><i class="fa-solid fa-play"></i> Start Detection</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = "http://localhost:8000";
+        let isRunning = false;
+        let pollInterval = null;
+
+        function toggleCamera() {
+            const feed = document.getElementById('video-feed');
+            const placeholder = document.getElementById('offline-placeholder');
+            const hud = document.getElementById('hud-overlay');
+            const btn = document.getElementById('toggle-camera');
+            const status = document.getElementById('status-indicator');
+
+            isRunning = !isRunning;
+
+            if (isRunning) {
+                // Point to backend stream
+                feed.src = `${API_BASE}/video_feed/`;
+                feed.style.display = 'block';
+                placeholder.style.display = 'none';
+                hud.style.display = 'block';
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop Detection';
+                btn.style.background = 'var(--danger)';
+                status.innerHTML = '<i class="fa-solid fa-server"></i> Status: <strong style="color: var(--status-active);">ACTIVE</strong>';
+
+                // Clear and start polling for names
+                pollInterval = setInterval(updateDetectionLog, 3000);
+            } else {
+                feed.src = "";
+                feed.style.display = 'none';
+                placeholder.style.display = 'block';
+                hud.style.display = 'none';
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> Start Detection';
+                btn.style.background = 'var(--success)';
+                status.innerHTML = '<i class="fa-solid fa-server"></i> Status: <strong style="color: var(--status-standby);">STANDBY</strong>';
+
+                if (pollInterval) clearInterval(pollInterval);
+                fetch(`${API_BASE}/stop_camera/`);
+            }
+        }
+
+        const seenNames = new Set();
+        async function updateDetectionLog() {
+            try {
+                const response = await fetch(`${API_BASE}/get_recognized_faces/`);
+                const data = await response.json();
+                const container = document.getElementById('detection-log');
+
+                if (data.faces.length > 0) {
+                    if (container.innerHTML.includes('Waiting')) container.innerHTML = '';
+
+                    data.faces.forEach(face => {
+                        if (seenNames.has(face.name)) return;
+                        seenNames.add(face.name);
+
+                        const item = document.createElement('div');
+                        item.className = 'glass-card';
+                        item.style.cssText = 'padding: 0.75rem; display: flex; gap: 0.75rem; align-items: center; background: rgba(255,255,255,0.02);';
+                        item.innerHTML = `
+                            <div style="width: 32px; height: 32px; background: rgba(99,102,241,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);"><i class="fa-solid fa-user"></i></div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 0.9rem;">${face.name}</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Detected Now</div>
+                            </div>
+                            <div style="color: var(--success); font-size: 0.7rem;"><i class="fa-solid fa-check"></i></div>
+                        `;
+                        container.insertBefore(item, container.firstChild);
+                    });
+                }
+            } catch (err) { }
+        }
+
+        function logout() {
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>
