@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student - FaceRec Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Premium Background Blobs -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Premium Navigation -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-face-smile-beam"></i>
+                </div>
+                FaceRec Pro
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="gallery.html" class="nav-link">Database</a>
+                <a href="#" onclick="logout()" class="nav-link" style="color: var(--danger);"><i
+                        class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="margin-top: 100px; padding-bottom: 4rem;">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+                <div>
+                    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;" id="title-name">Edit Student Profile</h1>
+                    <p style="color: var(--text-muted); font-size: 1.1rem;">Update details or add new training photos.
+                    </p>
+                </div>
+                <a href="gallery.html" class="btn-secondary" style="text-decoration: none;">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Gallery
+                </a>
+            </div>
+
+            <div class="glass-card" style="margin-bottom: 2rem; padding: 2.5rem;">
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i>
+                    Basic Information
+                </h3>
+
+                <form id="edit-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" name="name" id="name" required class="form-input">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label for="class_name">Class</label>
+                            <select name="class_name" id="class_name" class="form-input">
+                                <option value="" disabled>Select Class</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="number" name="age" id="age" class="form-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <select name="department" id="department" class="form-input">
+                            <option value="">No Department</option>
+                        </select>
+                    </div>
+
+                    <div
+                        style="margin: 2rem 0; padding: 1.5rem; background: rgba(99, 102, 241, 0.05); border-radius: 12px; border: 1px dashed rgba(99, 102, 241, 0.3);">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Upload New Photos
+                        </h4>
+                        <input type="file" name="image" id="image-upload" accept="image/*" multiple class="form-input"
+                            style="padding: 0.5rem;">
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="width: 100%; padding: 1rem;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+
+            <div class="glass-card" style="padding: 2.5rem;">
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-images" style="color: var(--secondary);"></i>
+                    Training Photos
+                </h3>
+                <div id="photos-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem;">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const personId = urlParams.get('id');
+        const API_BASE = "http://localhost:8000";
+
+        if (!personId) window.location.href = 'gallery.html';
+
+        async function init() {
+            try {
+                // Fetch Meta
+                const metaResp = await fetch(`${API_BASE}/api/register-meta/`);
+                const meta = await metaResp.json();
+
+                const classSelect = document.getElementById('class_name');
+                meta.class_options.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = opt.textContent = c;
+                    classSelect.appendChild(opt);
+                });
+
+                const deptSelect = document.getElementById('department');
+                meta.departments.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.textContent = d.name;
+                    deptSelect.appendChild(opt);
+                });
+
+                // Fetch Person Data
+                const resp = await fetch(`${API_BASE}/api/edit_person/${personId}/`);
+                const data = await resp.json();
+
+                document.getElementById('title-name').innerText = `Edit ${data.name}`;
+                document.getElementById('name').value = data.name;
+                document.getElementById('class_name').value = data.class_name || '';
+                document.getElementById('age').value = data.age || '';
+                document.getElementById('department').value = data.department_id || '';
+
+                renderPhotos(data.images);
+            } catch (err) {
+                console.error("Init error:", err);
+            }
+        }
+
+        function renderPhotos(images) {
+            const grid = document.getElementById('photos-grid');
+            grid.innerHTML = '';
+            images.forEach(img => {
+                const div = document.createElement('div');
+                div.className = 'photo-item';
+                div.style = 'position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);';
+                div.innerHTML = `
+                    <img src="${img.url}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <button onclick="deletePhoto(${img.id})" style="position: absolute; top: 5px; right: 5px; background: rgba(220, 38, 38, 0.8); border: none; color: white; border-radius: 4px; padding: 4px 6px; cursor: pointer;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        async function deletePhoto(faceId) {
+            if (!confirm('Remove this photo?')) return;
+            try {
+                const resp = await fetch(`${API_BASE}/api/delete_face/${faceId}/`, { method: 'POST' });
+                const result = await resp.json();
+                if (result.success) {
+                    location.reload();
+                }
+            } catch (err) { }
+        }
+
+        document.getElementById('edit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            try {
+                const response = await fetch(`${API_BASE}/api/edit_person/${personId}/`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    window.location.href = 'gallery.html';
+                }
+            } catch (err) { }
+        });
+
+        function logout() {
+            localStorage.removeItem('username');
+            window.location.href = 'login.html';
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

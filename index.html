@@ -4,11 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - FaceRec Pro</title>
+    <title>FaceRec Pro - Smart Surveillance</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -30,166 +29,148 @@
             </a>
             <div class="nav-links">
                 <a href="index.html" class="nav-link active">Home</a>
-                <a href="scan.html" class="nav-link">Live Analysis</a>
-                <a href="report.html" class="nav-link">Report</a>
-                <a href="gallery.html" class="nav-link">Database</a>
-                <a href="#" onclick="logout()" class="nav-link" style="color: var(--danger);"><i
-                        class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                <a href="login.html" class="nav-link" id="nav-login">Login</a>
+                <a href="dashboard.html" class="nav-link" id="nav-dashboard" style="display: none;">Dashboard</a>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="container" style="margin-top: 100px; padding-bottom: 4rem;">
-        <div class="welcome-section" style="margin-bottom: 2.5rem;">
-            <p
-                style="color: var(--primary); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 0.5rem;">
-                System Overview</p>
-            <h1 style="font-size: 2.5rem;">Welcome back, <span id="user-display">Admin</span></h1>
-            <p style="color: var(--text-muted); font-size: 1.1rem;">Here's what's happening with your security system
-                today.</p>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-blobs">
+            <div class="hero-blob hero-blob-1"></div>
+            <div class="hero-blob hero-blob-2"></div>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="glass-card stat-card">
-                <div class="stat-icon" style="background: rgba(99, 102, 241, 0.1); color: var(--primary);">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-                <div class="stat-info">
-                    <p class="stat-label">Total Students</p>
-                    <h3 class="stat-value" id="total-students">0</h3>
-                </div>
-            </div>
-            <div class="glass-card stat-card">
-                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
-                    <i class="fa-solid fa-user-check"></i>
-                </div>
-                <div class="stat-info">
-                    <p class="stat-label">Present Today</p>
-                    <h3 class="stat-value" id="present-today">0</h3>
-                </div>
-            </div>
-            <div class="glass-card stat-card">
-                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
-                    <i class="fa-solid fa-bell"></i>
-                </div>
-                <div class="stat-info">
-                    <p class="stat-label">Alerts Today</p>
-                    <h3 class="stat-value" id="alerts-today">0</h3>
-                </div>
+        <div class="hero-glass-container animate-fade-in">
+            <h1 class="display-text">Where Technology<br>Meets Security</h1>
+            <p class="hero-subtext">Expertly crafting breathable security environments with advanced facial recognition
+                technology.</p>
+
+            <div style="display: flex; gap: 1.5rem; justify-content: center; position: relative; z-index: 10;">
+                <a href="scan.html" class="btn-primary glow-btn"
+                    style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 50px;">
+                    Start Analysis
+                </a>
+                <a href="#features" class="btn-secondary hover-glow"
+                    style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 50px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px);">
+                    Explore Features
+                </a>
             </div>
         </div>
+    </section>
 
-        <div class="dash-layout">
-            <!-- Chart Section -->
-            <div class="glass-card" style="padding: 1.5rem;">
-                <h3 style="margin-bottom: 1.5rem; font-size: 1.2rem;"><i class="fa-solid fa-chart-line"
-                        style="color: var(--primary); margin-right: 0.5rem;"></i> Attendance Trends</h3>
-                <div style="height: 300px; position: relative;">
-                    <canvas id="attendanceChart"></canvas>
-                </div>
-            </div>
+    <!-- Features Section -->
+    <section id="features" class="feature-section container">
+        <h2 class="section-title">Core Capabilities</h2>
 
-            <!-- Recent Activity -->
-            <aside class="glass-card" style="padding: 1.5rem;">
-                <h3 style="margin-bottom: 1.5rem; font-size: 1.2rem;"><i class="fa-solid fa-clock-rotate-left"
-                        style="color: var(--secondary); margin-right: 0.5rem;"></i> Recent Logs</h3>
-                <div id="recent-logs-container" style="display: flex; flex-direction: column; gap: 1rem;">
-                    <p style="text-align: center; color: var(--text-muted);">Loading logs...</p>
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem;">
+
+            <!-- Register Card -->
+            <a href="register.html" class="glass-card animate-fade-in"
+                style="padding: 3rem 2rem; text-decoration: none; text-align: center; transition: all 0.4s ease; animation-delay: 0.1s;">
+                <div
+                    style="width: 80px; height: 80px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--primary); font-size: 2rem;">
+                    <i class="fa-solid fa-user-plus"></i>
                 </div>
-            </aside>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Registration</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Seamlessly onboard new individuals into the
+                    secure
+                    database using webcam or file uploads.</p>
+                <span style="color: var(--primary); font-weight: 600;">Get Started &rarr;</span>
+            </a>
+
+            <!-- Live Analysis Card -->
+            <a href="scan.html" class="glass-card animate-fade-in"
+                style="padding: 3rem 2rem; text-decoration: none; text-align: center; transition: all 0.4s ease; animation-delay: 0.2s;">
+                <div
+                    style="width: 80px; height: 80px; background: rgba(236, 72, 153, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--secondary); font-size: 2rem;">
+                    <i class="fa-solid fa-expand"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Live Monitoring</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Real-time face detection and identification
+                    with
+                    high-performance tracking algorithms.</p>
+                <span style="color: var(--secondary); font-weight: 600;">Launch Scanner &rarr;</span>
+            </a>
+
+            <!-- Database Card -->
+            <a href="gallery.html" class="glass-card animate-fade-in"
+                style="padding: 3rem 2rem; text-decoration: none; text-align: center; transition: all 0.4s ease; animation-delay: 0.3s;">
+                <div
+                    style="width: 80px; height: 80px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: var(--success); font-size: 2rem;">
+                    <i class="fa-solid fa-database"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Data Management</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Comprehensive gallery to view, edit, and
+                    manage
+                    all registered identities.</p>
+                <span style="color: var(--success); font-weight: 600;">View Gallery &rarr;</span>
+            </a>
+
+            <!-- Dashboard Card -->
+            <a href="dashboard.html" class="glass-card animate-fade-in"
+                style="padding: 3rem 2rem; text-decoration: none; text-align: center; transition: all 0.4s ease; animation-delay: 0.4s;">
+                <div
+                    style="width: 80px; height: 80px; background: rgba(34, 211, 238, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #22d3ee; font-size: 2rem;">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Analytics Dashboard</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Interactive visualizations of attendance
+                    trends
+                    and
+                    security event metrics.</p>
+                <span style="color: #22d3ee; font-weight: 600;">Insights &rarr;</span>
+            </a>
+
         </div>
-    </main>
+
+        <!-- Stats Row -->
+        <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 4rem; flex-wrap: wrap;">
+            <div style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: 700; color: white;" id="total-people">0</div>
+                <div
+                    style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-top: 0.5rem;">
+                    Registered Individuals</div>
+            </div>
+            <div style="width: 1px; background: var(--glass-border);"></div>
+            <div style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: 700; color: white;">24/7</div>
+                <div
+                    style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-top: 0.5rem;">
+                    Uptime</div>
+            </div>
+            <div style="width: 1px; background: var(--glass-border);"></div>
+            <div style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: 700; color: var(--success);">100%</div>
+                <div
+                    style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; margin-top: 0.5rem;">
+                    System Status</div>
+            </div>
+        </div>
+    </section>
 
     <script>
         const API_BASE = "http://localhost:8000";
 
+        async function fetchStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/stats/`);
+                const data = await response.json();
+                document.getElementById('total-people').innerText = data.total_students;
+            } catch (err) { }
+        }
+
         function checkAuth() {
             const user = localStorage.getItem('username');
-            if (!user) {
-                window.location.href = 'login.html';
-            } else {
-                document.getElementById('user-display').innerText = user;
+            if (user) {
+                document.getElementById('nav-login').style.display = 'none';
+                document.getElementById('nav-dashboard').style.display = 'inline-block';
             }
-        }
-
-        async function fetchDashboardData() {
-            try {
-                const response = await fetch(`${API_BASE}/api/dashboard/`);
-                if (response.status === 401 || response.status === 403) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                const data = await response.json();
-
-                // Update Stats
-                document.getElementById('total-students').innerText = data.stats.total_students;
-                document.getElementById('present-today').innerText = data.stats.present_today;
-                document.getElementById('alerts-today').innerText = data.stats.alerts_today;
-
-                // Update Logs
-                const logContainer = document.getElementById('recent-logs-container');
-                logContainer.innerHTML = '';
-                data.recent_logs.forEach(log => {
-                    const row = document.createElement('div');
-                    row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05);';
-                    row.innerHTML = `
-                        <div>
-                            <p style="font-weight: 600; margin: 0;">${log.name}</p>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">${log.time}</p>
-                        </div>
-                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); font-size: 0.7rem;">${log.status}</span>
-                    `;
-                    logContainer.appendChild(row);
-                });
-
-                // Update Chart
-                initChart(data.chart.labels, data.chart.data);
-
-            } catch (err) {
-                console.error("Fetch failed", err);
-            }
-        }
-
-        let chart;
-        function initChart(labels, data) {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
-            if (chart) chart.destroy();
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Present Students',
-                        data: data,
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#6366f1'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                    }
-                }
-            });
-        }
-
-        function logout() {
-            localStorage.removeItem('username');
-            window.location.href = 'login.html';
         }
 
         checkAuth();
-        fetchDashboardData();
+        fetchStats();
     </script>
 </body>
 

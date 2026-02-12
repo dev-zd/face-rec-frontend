@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - FaceRec Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Premium Background Blobs -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container" style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+        <div class="glass-card animate-fade-in"
+            style="width: 100%; max-width: 450px; padding: 2.5rem; text-align: center;">
+            <div class="logo-icon" style="margin: 0 auto 1.5rem; font-size: 2.5rem; color: var(--secondary);">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h1 style="font-size: 2rem; margin-bottom: 1rem;">Verification</h1>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Please enter the 6-digit code sent to your email.
+            </p>
+
+            <form id="otp-form">
+                <div class="form-group">
+                    <input type="text" name="otp" id="otp" required placeholder="000000" maxlength="6"
+                        style="text-align: center; font-size: 2rem; letter-spacing: 0.5rem; font-weight: 700;"
+                        class="form-input">
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Verify Account
+                </button>
+            </form>
+
+            <div style="margin-top: 2rem;">
+                <a href="forgot_password.html"
+                    style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">
+                    Resend Code
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = "http://localhost:8000";
+        const userId = sessionStorage.getItem('reset_user_id');
+
+        if (!userId) window.location.href = 'forgot_password.html';
+
+        document.getElementById('otp-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('otp').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/verify_otp//`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, otp: otp })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    sessionStorage.setItem('otp_verified', 'true');
+                    window.location.href = 'reset_password.html';
+                } else {
+                    alert(result.error);
+                }
+            } catch (err) { }
+        });
+    </script>
+</body>
+
+</html>
